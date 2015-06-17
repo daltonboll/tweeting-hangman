@@ -1,3 +1,4 @@
+import random
 
 class Game:
 
@@ -10,6 +11,7 @@ class Game:
 
 	def play(self, mode="easy"):
 		self.word_list = self.load_words()
+		self.word_list_length = len(self.word_list)
 		self.wrong_guesses = 0
 		word_tuple = self.find_word()
 		self.word = word_tuple[0]
@@ -52,7 +54,8 @@ class Game:
 		pass
 
 	def find_word(self, mode="easy"):
-		word = "happiness"
+		random_number = random.randint(0, self.word_list_length - 1)
+		word = self.word_list[random_number]
 		word_with_spaces = self.add_spaces_to_word(word)
 		return (word, word_with_spaces)
 
