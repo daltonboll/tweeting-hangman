@@ -18,6 +18,10 @@ class Game:
 		self.word_with_spaces = word_tuple[1]
 		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word))
 
+		print("word: " + self.word)
+		print("word with spaces: '{}'".format(self.word_with_spaces))
+		print("Here's the mystery word: " + self.blank_word)
+
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
 			self.letter = input("Guess a letter:\n")
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
@@ -55,13 +59,13 @@ class Game:
 
 	def find_word(self, mode="easy"):
 		random_number = random.randint(0, self.word_list_length - 1)
-		word = self.word_list[random_number]
+		word = self.word_list[random_number] # get the random word
+		word = word[:-1] # remove the trailing \n character
 		word_with_spaces = self.add_spaces_to_word(word)
 		return (word, word_with_spaces)
 
 	def add_spaces_to_word(self, word):
 		word_with_spaces = ""
-
 		for char in word:
 			word_with_spaces = word_with_spaces + char + " "
 		word_with_spaces = word_with_spaces[:-1] # remove trailing space
