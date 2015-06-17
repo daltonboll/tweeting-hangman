@@ -35,6 +35,7 @@ class Game:
 				print("\nSorry! The letter '{}'' does not appear in the mystery word.".format(self.letter))
 				self.wrong_guesses += 1
 				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
+				print("Here's the mystery word: " + self.blank_word)
 
 		if self.blank_word == self.word_with_spaces:
 			print("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
