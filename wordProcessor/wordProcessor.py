@@ -1,5 +1,5 @@
 MIN_LENGTH = 6
-MAX_LENGTH = 12
+MAX_LENGTH = 8
 
 print("Opening input file...")
 input_file = open("Enwords.txt", "r")
