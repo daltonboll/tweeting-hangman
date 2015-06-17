@@ -6,7 +6,7 @@ class Game:
 		self.computer_player = computer_player
 		self.user_player = user_player
 
-	def play(self):
+	def play(self, mode="easy"):
 		self.wrong_guesses = 0
 		word_tuple = self.find_word()
 		self.word = word_tuple[0]
@@ -42,7 +42,7 @@ class Game:
 	def find_evil_word(self):
 		pass
 
-	def find_word(self):
+	def find_word(self, mode="easy"):
 		word = "happiness"
 		word_with_spaces = self.add_spaces_to_word(word)
 
