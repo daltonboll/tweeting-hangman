@@ -7,11 +7,15 @@ TODO:
 - only allow user to guess one character at a time
 - only allow user to guess characters
 	- automatically make characters lowercase
-- add comments
 
 Twitter:
 - implement twitter functionality
 - add User class
 
-possibly:
+General:
+- add comments
+- update readme
+
+Possibly:
 - user interface
+
