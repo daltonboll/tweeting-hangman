@@ -1,25 +1,35 @@
 class Game:
 
+	MAX_GUESSES = 6
+
 	def __init__(self, computer_player, user_player):
 		self.computer_player = computer_player
 		self.user_player = user_player
 
 	def play(self):
+		self.wrong_guesses = 0
 		self.word = self.find_word()
 		self.blank_word = self.get_blank_word(self.word)
 
-		while self.blank_word != self.word:
+		while self.blank_word != self.word and self.wrong_guesses < Game.MAX_GUESSES:
 			self.letter = input("Guess a letter:\n")
 			changed_tuple = self.replace_letters(self.letter, self.word, self.blank_word)
 			changed = changed_tuple[0]
+
 			if changed:
 				count = changed_tuple[1]
 				print("\nCongratulations! The letter '{}'' occured {} times.".format(self.letter, count))
 				print("The mystery word is now: {}\n".format(self.blank_word))
 			else:
-				print("\nSorry! The letter '{}'' does not appear in the mystery word. Please try again.".format(self.letter))
+				print("\nSorry! The letter '{}'' does not appear in the mystery word.".format(self.letter))
+				self.wrong_guesses += 1
+				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
 
-		print("Woohoo! You guessed the word! It was '{}'. Thanks for playing!".format(self.word))
+		if self.blank_word == self.word:
+			print("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
+		else:
+			print("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
+
 		self.end_game()
 
 
@@ -59,6 +69,8 @@ class Game:
 	def set_new_blank_word(self, new_word):
 		self.blank_word = new_word
 
+	def get_remaining_guesses(self, max_guesses, wrong_guesses):
+		return max_guesses - wrong_guesses
 
 
 
