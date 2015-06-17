@@ -8,12 +8,15 @@ class Game:
 
 	def play(self):
 		self.wrong_guesses = 0
-		self.word = self.find_word()
-		self.blank_word = self.get_blank_word(self.word)
+		word_tuple = self.find_word()
+		self.word = word_tuple[0]
+		self.word_with_spaces = word_tuple[1]
+		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word))
 
-		while self.blank_word != self.word and self.wrong_guesses < Game.MAX_GUESSES:
+
+		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
 			self.letter = input("Guess a letter:\n")
-			changed_tuple = self.replace_letters(self.letter, self.word, self.blank_word)
+			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
 			changed = changed_tuple[0]
 
 			if changed:
@@ -25,7 +28,7 @@ class Game:
 				self.wrong_guesses += 1
 				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
 
-		if self.blank_word == self.word:
+		if self.blank_word == self.word_with_spaces:
 			print("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
 		else:
 			print("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
@@ -40,7 +43,18 @@ class Game:
 		pass
 
 	def find_word(self):
-		return "happiness"
+		word = "happiness"
+		word_with_spaces = self.add_spaces_to_word(word)
+
+		return (word, word_with_spaces)
+
+	def add_spaces_to_word(self, word):
+		word_with_spaces = ""
+		for char in word:
+			word_with_spaces = word_with_spaces + char + " "
+		word_with_spaces = word_with_spaces[:-1] # remove trailing space
+
+		return word_with_spaces
 
 	def get_blank_word(self, word):
 		blank_word = ""
