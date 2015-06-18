@@ -3,82 +3,133 @@ import string
 
 class Game:
 
-	MAX_GUESSES = 6
-	WORD_FILE_PATH = "wordProcessor/words.txt"
+	MAX_GUESSES = 6 # the maximum guesses a User can have before the game ends
+	WORD_FILE_PATH = "wordProcessor/words.txt" # the path of the word dictionary
+	debug = True # when debug is True, print extra output to the console for debugging use
 
 	def __init__(self, computer_player, user_player):
+		"""
+		Initialize the game. Set computer_player and user_player variables.
+
+		computer_player = the User that is the computer player
+		user_player = the User that is the human player
+		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
 
 	def play(self, mode="easy"):
-		self.letters_guessed = []
-		self.word_list = self.load_words()
-		self.word_list_length = len(self.word_list)
-		self.wrong_guesses = 0
-		word_tuple = self.find_word()
-		self.word = word_tuple[0]
-		self.word_with_spaces = word_tuple[1]
-		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word))
+		"""
+		The 'brain' of the game. Handles collecting input and keeps the game flowing.
+		The mode is default to 'easy', which is normal hangman. When the mode is 'evil',
+		the computer player will be smart about its words and try to make the User lose 
+		at all costs.
 
-		print("word: " + self.word)
-		print("word with spaces: '{}'".format(self.word_with_spaces))
-		print("Here's the mystery word: " + self.blank_word)
+		mode = a string containing "easy" or "evil"
+		"""
+		self.letters_guessed = [] # letters the User has already guessed
+		self.word_list = self.load_words() # grab a list of every word in our dictionary
+		self.word_list_length = len(self.word_list) # the number of words in our dictionary
+		self.wrong_guesses = 0 # the number of times the User has guessed incorrectly
+		word_tuple = self.find_word() # a tuple containing (mystery word chosen, mystery word chosen with spaces for formatting)
+		self.word = word_tuple[0] # the mystery word chosen for the user to guess
+		self.word_with_spaces = word_tuple[1] # the mystery word with spaces
+		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word)) # the mystery word in space and underscore format (_ _ _...)
 
+		# If debugging, display the mystery word info to the console
+		if debug:
+			print("word: " + self.word)
+			print("word with spaces: '{}'".format(self.word_with_spaces))
+
+		print("Here's the mystery word: " + self.blank_word) # show the user the mystery word blank spaces
+
+		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
-			self.letter = input("Guess a letter:\n").lower()
+			self.letter = input("Guess a letter:\n").lower() # ask the user for input, convert to lowercase
 
+			# check to see if the user gave valid input (a single alphabetical letter)
 			if not self.string_is_single_letter(self.letter):
-				print("Uh oh, that's not a valid input. Try single alphabetical characters please!")
+				print("Uh oh, that's not a valid input. Try single alphabetical letters please!")
 				continue
 
+			# check to see if the user has already guessed that letter before
 			if self.letter in self.letters_guessed:
 				print("Woops! You already guessed the letter '{}'.".format(self.letter))
 				continue
 			else:
-				self.letters_guessed.append(self.letter)
+				self.letters_guessed.append(self.letter) # if not, add the letter to letters_guessed
 
+			# grab a tuple with (boolean of whether or not the user's letter was in the word, count of how many times the letter appeared in the word)
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
-			changed = changed_tuple[0]
+			changed = changed_tuple[0] # get the boolean
 
-			if changed:
+			if changed: # if the user guessed a valid letter, notify them
 				count = changed_tuple[1]
 				print("\nCongratulations! The letter '{}'' occured {} times.".format(self.letter, count))
 				print("The mystery word is now: {}\n".format(self.blank_word))
-			else:
+			else: # else, decrease their guesses remaining and notify them
 				print("\nSorry! The letter '{}'' does not appear in the mystery word.".format(self.letter))
 				self.wrong_guesses += 1
 				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
 				print("Here's the mystery word: " + self.blank_word)
 
+		# once the guessing has stopped, check to see if the game finished because of winning or losing
 		if self.blank_word == self.word_with_spaces:
 			print("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
 		else:
 			print("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
-		self.end_game()
+		self.end_game() # end the game by closing interactions with Twitter, asking to play again, etc.
 
 	def load_words(self):
+		"""
+		Returns a list of all of our possible words in our dictionary that we could use as
+		the mystery word.
+		"""
 		print("Loading dictionary...", end="")
-		word_file = open(Game.WORD_FILE_PATH, "r") # open word file for read-only use
+		word_file = open(Game.WORD_FILE_PATH, "r") # open the dictionary file for read-only use
 		word_list = word_file.readlines() # add each word in the file to a list
-		word_list = word_list[:-1] # remove blank line from list
-		word_file.close()
+		word_list = word_list[:-1] # remove the last blank line from the list
+		word_file.close() # make sure to close the dictionary file
 		print(" done! Let's begin.")
 		return word_list
 
 	def end_game(self):
+		"""
+		TODO: End the game by closing connections with Twitter, asking the user if they'd like
+		to play again, etc.
+		"""
+		# TODO: add more functionality
 		print("Game ended.")
 
 	def find_evil_word(self):
+		"""
+		TODO: Returns a word in an 'evil' way. Finds a word in our dictionary that we could
+		secretly replace the mystery word with, given the user just guessed a letter that would
+		reveal extra spaces in our mystery word. E.g. current mystery word = 'pour'. Currently,
+		the user sees 'p _ _ _'. The user guesses 'o'. We secretly replace the mystery word with
+		'ping' to make the user think that 'o' was not in the mystery word. Note that the new evil
+		mystery word must contain all letters that have already been revealed to the user.
+		"""
 		pass
 
 	def find_word(self, mode="easy"):
-		random_number = random.randint(0, self.word_list_length - 1)
+		"""
+		Returns a tuple with (a random word from our dictionary, that word with spaces
+		for formatting). TODO: when mode="evil", set out to find an evil word.
+
+		mode = a string containing either "easy" or "evil"
+		"""
+		random_number = random.randint(0, self.word_list_length - 1) # generate a random number between 0 and the length of our word list - 1
 		word = self.word_list[random_number] # get the random word
-		word = word[:-1] # remove the trailing \n character
-		word_with_spaces = self.add_spaces_to_word(word)
+		word = word[:-1] # remove the trailing \n character from the word
+		word_with_spaces = self.add_spaces_to_word(word) # get the word with spaces
 		return (word, word_with_spaces)
 
 	def add_spaces_to_word(self, word):
+		"""
+		Returns word with spaces in between. E.g. if word="hello", returns "h e l l o".
+
+		word = a string containing a single word
+		"""
 		word_with_spaces = ""
 		for char in word:
 			word_with_spaces = word_with_spaces + char + " "
@@ -86,37 +137,75 @@ class Game:
 		return word_with_spaces
 
 	def get_blank_word(self, word):
+		"""
+		Given a word, returns a string with only underscores (blank spaces). E.g. if
+		the word is "hello", returns "_____".
+
+		word = a string containing a single word
+		"""
 		blank_word = ""
 		for i in range(0, len(word)):
 			blank_word = blank_word + "_"
 		return blank_word
 
 	def replace_letters(self, character, word, blank_word):
+		"""
+		Returns a tuple with (a boolean of whether or not the character was found in the word/blank_word, 
+		the count with the number of times that character occured).
+		
+		character = a single alphabetical character
+		word = a single word
+		blank_word = a form of word with underscores (_) having replaced certain characters
+		"""
 		changed = False
 		count = 0
 
-		for index, char in enumerate(word):
-			if char == character:
+		for index, char in enumerate(word): # keep track of each index and character in the word
+			if char == character: # if we found the character in the word:
 				# TODO: try for evil hangman
-				blank_word = self.replace_char_at_index(character, blank_word, index)
-				self.set_new_blank_word(blank_word)
-				changed = True
-				count += 1
+				blank_word = self.replace_char_at_index(character, blank_word, index) # put the character into the blank_word at the index it was found
+				self.set_new_blank_word(blank_word) # set our updated blank_word
+				changed = True # update our boolean because the character was found
+				count += 1 # increment the number of times the character was found
 		return (changed, count)
 
 	def replace_char_at_index(self, character, word, index):
-		word_list = list(word)
-		word_list[index] = character
-		return ''.join(word_list)
+		"""
+		Returns the replacement of a character at a specific index of a word.
+
+		character = the character to insert into the word
+		word = the word to have a character replaced
+		index = the index of the word in which to replace the character
+		"""
+		word_list = list(word) # convert the word into a list
+		word_list[index] = character # replace the character at that index with the new character
+		return ''.join(word_list) # convert the list back into a string
 
 	def set_new_blank_word(self, new_word):
+		"""
+		Replaces self.blank_word with new_word.
+
+		new_word = the new word to set the blank_word to
+		"""
 		self.blank_word = new_word
 
 	def get_remaining_guesses(self, max_guesses, wrong_guesses):
+		"""
+		Returns the number of guesses that the user has remaining.
+
+		max_guesses = the limit to how many guesses the user can have (e.g. 6)
+		wrong_guesses = the number of wrong guesses the user already has (e.g. 3)
+		"""
 		return max_guesses - wrong_guesses
 
 	def string_is_single_letter(self, str):
-		alphabet = string.ascii_lowercase
+		"""
+		Returns True if the input str is a single character, and a 
+		valid alphabetical character only.
+
+		str = a string of any format
+		"""
+		alphabet = string.ascii_lowercase # a string containing each lowercase letter of the alphabet
 
 		return len(str) == 1 and str in alphabet
 

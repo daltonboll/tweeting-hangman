@@ -10,6 +10,7 @@ Twitter:
 General:
 - add comments
 - update readme
+- go through comment TODO's
 
 Possibly:
 - user interface

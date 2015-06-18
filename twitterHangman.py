@@ -1,4 +1,6 @@
 from game import Game
 
-game = Game("computer", "user")
-game.play()
+# This file is the 'control' of the game, where a new Game instance is initialized and Users are set.
+
+game = Game("computer", "user") # create a new game instance. TODO: create computer/user from User class
+game.play() # start the game!
