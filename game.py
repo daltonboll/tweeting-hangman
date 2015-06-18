@@ -1,4 +1,5 @@
 import random
+import string
 
 class Game:
 
@@ -24,13 +25,18 @@ class Game:
 		print("Here's the mystery word: " + self.blank_word)
 
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
-			self.letter = input("Guess a letter:\n")
+			self.letter = input("Guess a letter:\n").lower()
+
+			if not self.string_is_single_letter(self.letter):
+				print("Uh oh, that's not a valid input. Try single alphabetical characters please!")
+				continue
+
 			if self.letter in self.letters_guessed:
 				print("Woops! You already guessed the letter '{}'.".format(self.letter))
 				continue
 			else:
 				self.letters_guessed.append(self.letter)
-				
+
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
 			changed = changed_tuple[0]
 
@@ -109,6 +115,10 @@ class Game:
 	def get_remaining_guesses(self, max_guesses, wrong_guesses):
 		return max_guesses - wrong_guesses
 
+	def string_is_single_letter(self, str):
+		alphabet = string.ascii_lowercase
+
+		return len(str) == 1 and str in alphabet
 
 
 

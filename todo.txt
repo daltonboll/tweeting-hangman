@@ -2,9 +2,6 @@ TODO:
 - allow user to ask for letters already guessed
 - add visual depiction of hangman
 - make 'evil' option
-- only allow user to guess one character at a time
-- only allow user to guess characters
-	- automatically make characters lowercase
 
 Twitter:
 - implement twitter functionality
