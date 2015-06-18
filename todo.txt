@@ -1,6 +1,4 @@
 TODO:
-- add list of letters already guessed
-- let user re-guess if they already guessed a letter before
 - allow user to ask for letters already guessed
 - add visual depiction of hangman
 - make 'evil' option

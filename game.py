@@ -10,6 +10,7 @@ class Game:
 		self.user_player = user_player
 
 	def play(self, mode="easy"):
+		self.letters_guessed = []
 		self.word_list = self.load_words()
 		self.word_list_length = len(self.word_list)
 		self.wrong_guesses = 0
@@ -24,6 +25,12 @@ class Game:
 
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
 			self.letter = input("Guess a letter:\n")
+			if self.letter in self.letters_guessed:
+				print("Woops! You already guessed the letter '{}'.".format(self.letter))
+				continue
+			else:
+				self.letters_guessed.append(self.letter)
+				
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
 			changed = changed_tuple[0]
 
