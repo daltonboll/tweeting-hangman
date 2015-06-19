@@ -52,3 +52,5 @@ Currently, the game runs completely fine through the terminal with no tweeting i
 (it's just a regular game of Hangman right now). The next step is to develop the 'evil' mode, 
 and finally to integrate tweeting through the Twitter API.
 
+Start the game in the terminal by running 'python3 tweetingHangman.py'.
+
