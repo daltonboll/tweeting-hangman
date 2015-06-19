@@ -11,34 +11,34 @@ class TwitterConnection:
 		self.access_token_secret = ""
 		self.auth = ""
 		self.api = ""
+		self.user = ""
 
 		self.get_keys()
 		self.set_auth()
 		self.set_api()
 
 	def get_keys(self):
-		keys_file = open(KEYS_FILE, "r")
+		keys_file = open(TwitterConnection.KEYS_FILE, "r")
 		keys_list = keys_file.read().splitlines()
 
 		for line in keys_list:
 			setting = line.split(" = ")
-			print(setting)
 			key_name = setting[0]
 			key_value = setting[1]
-			keys[key_name] = key_value
+			self.keys[key_name] = key_value
 		keys_file.close()
 
-		self.consumer_key = keys["consumer_key"]
-		self.consumer_secret = keys["consumer_secret"]
-		self.access_token = keys["access_token"]
-		self.access_token_secret = keys["access_token_secret"]
+		self.consumer_key = self.keys["consumer_key"]
+		self.consumer_secret = self.keys["consumer_secret"]
+		self.access_token = self.keys["access_token"]
+		self.access_token_secret = self.keys["access_token_secret"]
 
 	def set_auth(self):
 		self.auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
-		self.auth.set_access_token(access_token, access_token_secret)
+		self.auth.set_access_token(self.access_token, self.access_token_secret)
 
 	def set_api(self):
-		self.api = tweepy.API(auth)
+		self.api = tweepy.API(self.auth)
 
 	def get_auth(self):
 		return self.auth
@@ -49,4 +49,12 @@ class TwitterConnection:
 	def tweet_at_user(self, user):
 		# TODO: implement tweeting
 		user_handle = user.get_handle()
-	
+
+
+connection = TwitterConnection()
+api = connection.get_api()
+public_tweets = api.home_timeline()
+for tweet in public_tweets:
+    print(tweet.text)
+
+api.update_status(status="hello")
