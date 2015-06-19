@@ -3,13 +3,13 @@ github: https://github.com/daltonboll/tweeting-hangman
 Project Name: TweetingHangman
 Author: Dalton Boll
 
-
+--------------------------------------------------------------------------------------------------------
 Short description:
 TweetingHangman is a game with classic 'Hangman' rules. The user plays against 
 a computer over Twitter, and can optionally play in 'evil' mode - a true test 
 of one's word guessing abilities.
 
-
+--------------------------------------------------------------------------------------------------------
 Long description:
 TweetingHangman is just like the popular 'Hangman' game, but with a twist. 
 A human player gets to play against a computer over Twitter, tweeting guesses and 
@@ -47,7 +47,6 @@ The 'evil' mode of TweetingHangman is a mode in which the computer player (@Twee
 extremely smart (or rather sneaky). @TweetingHangman will secretly switch the mystery word upon 
 @user's guesses, making it almost impossible for @user to win the game. There's nothing like a 
 little public Twitter humiliation for @user to get better at 'evil' TweetingHangman!
-
 
 Currently, the game runs completely fine through the terminal with no tweeting implementation 
 (it's just a regular game of Hangman right now). The next step is to develop the 'evil' mode, 
