@@ -45,4 +45,8 @@ class TwitterConnection:
 
 	def get_api(self):
 		return self.api
+
+	def tweet_at_user(self, user):
+		# TODO: implement tweeting
+		user_handle = user.get_handle()
 	
