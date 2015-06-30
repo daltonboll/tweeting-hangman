@@ -18,14 +18,14 @@ class Game:
 		self.user_player = user_player
 		self.word_dictionary = {}
 
-	def play(self, mode="easy"):
+	def play(self, evil_mode=False):
 		"""
 		The 'brain' of the game. Handles collecting input and keeps the game flowing.
 		The mode is default to 'easy', which is normal hangman. When the mode is 'evil',
 		the computer player will be smart about its words and try to make the User lose 
 		at all costs.
 
-		mode = a string containing "easy" or "evil"
+		evil_mode = a boolean, defaulted to False. When true, play the game in 'evil' mode.
 		"""
 		self.letters_guessed = [] # letters the User has already guessed
 		self.word_list = self.load_words() # grab a list of every word in our dictionary
@@ -45,7 +45,12 @@ class Game:
 
 		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
+			if Game.debug:
+				print("word with spaces: " + self.word_with_spaces)
+				print("word: " + self.word)
+				print("blank_word: " + self.blank_word)
 			self.letter = input("Guess a letter:\n").lower() # ask the user for input, convert to lowercase
+
 
 			# check to see if the user gave valid input (a single alphabetical letter)
 			if not self.string_is_single_letter(self.letter):
@@ -58,16 +63,32 @@ class Game:
 				continue
 			else:
 				self.letters_guessed.append(self.letter) # if not, add the letter to letters_guessed
+				if Game.debug:
+					print("Letters guessed so far: {}".format(self.letters_guessed))
 
-			# grab a tuple with (boolean of whether or not the user's letter was in the word, count of how many times the letter appeared in the word)
+			# grab a tuple with (boolean of whether or not the user's letter was in the word, count of how many times the letter appeared in the word, and the blank word with letters replaced)
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
 			changed = changed_tuple[0] # get the boolean
+			blank_word_with_letters_replaced = changed_tuple[2]
 
-			if changed: # if the user guessed a valid letter, notify them
+			if changed and evil_mode: # if the user guessed a valid letter, notify them
+				evil_word = self.find_evil_word(self.blank_word)
+				if evil_word != None:
+					if Game.debug:
+						print("Found a new evil word: {}\n".format(evil_word))
+					new_blank_word = self.add_spaces_to_word(self.get_blank_word(evil_word)) # set the new blank_word to the formatted evil word
+					self.word = evil_word
+					self.word_with_spaces = self.add_spaces_to_word(evil_word)
+					self.set_new_blank_word(new_blank_word) # set our updated blank_word
+					changed = False
+
+			if changed: # if the letter was changed or we failed to find a new evil word:
 				count = changed_tuple[1]
+				self.set_new_blank_word(blank_word_with_letters_replaced) # set our updated blank_word
 				print("\nCongratulations! The letter '{}'' occured {} times.".format(self.letter, count))
 				print("The mystery word is now: {}\n".format(self.blank_word))
-			else: # else, decrease their guesses remaining and notify them
+
+			if not changed: # else, decrease their guesses remaining and notify them
 				print("\nSorry! The letter '{}'' does not appear in the mystery word.".format(self.letter))
 				self.wrong_guesses += 1
 				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
@@ -131,6 +152,7 @@ class Game:
 			cutoff += 1 # keep track of the cutoff so we don't have to re-check again in the future
 			if self.can_replace(current_word, word) and word != self.word: # if the new word is a valid replacement and it's not equal to the previous word:
 				self.word_dictionary[word_length] = list_of_possible_words[cutoff:] # remove invalid replacements
+				print("found a new evil word: {}!".format(word))
 				return word # return the evil word that we found
 
 		self.word_dictionary[word_length] = [] # there are no possible words to change to
@@ -148,16 +170,27 @@ class Game:
 		word = a string of the format 'pour'
 		"""
 		#TODO: make sure the letters in the new word weren't previously guessed
+		print("in can_replace| comparing {} to {}".format(word, spaced_word))
 		word_to_replace = self.add_spaces_to_word(word)
+		found_valid_letter = False
+
 		for index, letter in enumerate(spaced_word):
-			if letter != '_':
-				if letter == word[index]:
+			if letter != ' ':
+				if word_to_replace[index] in self.letters_guessed and word_to_replace[index] not in spaced_word:
+					print("The letter '{}' was already guessed before!".format(word_to_replace[index]))
+					return False
+				if letter == word_to_replace[index] or letter == '_':
+					print("The letter '{}' matched!".format(letter))
+					found_valid_letter = True
 					continue
 				else:
-					print("The word '{}' DID NOT match '{}'".format(word, spaced_word))
+					print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
 					return False
-		print("The word '{}' did matched '{}'".format(word, spaced_word))
-		return True
+		if found_valid_letter:
+			print("The word '{}' did match '{}'".format(word_to_replace, spaced_word))
+			return True
+		else:
+			print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
 
 
 	def find_word(self, mode="easy"):
@@ -212,11 +245,12 @@ class Game:
 		for index, char in enumerate(word): # keep track of each index and character in the word
 			if char == character: # if we found the character in the word:
 				# TODO: try for evil hangman
+				if Game.debug:
+					print("In replace_letters| character = {}, blank_word = {}, index = {}\n".format(character, blank_word, index))
 				blank_word = self.replace_char_at_index(character, blank_word, index) # put the character into the blank_word at the index it was found
-				self.set_new_blank_word(blank_word) # set our updated blank_word
 				changed = True # update our boolean because the character was found
 				count += 1 # increment the number of times the character was found
-		return (changed, count)
+		return (changed, count, blank_word)
 
 	def replace_char_at_index(self, character, word, index):
 		"""
