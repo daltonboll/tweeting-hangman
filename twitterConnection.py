@@ -4,7 +4,7 @@ from user import User
 
 class TwitterConnection:
 	KEYS_FILE = "keys"
-	HANGMAN_HANDLE = "@TweetingHangman"
+	HANGMAN_HANDLE = "@TweetingHangman "
 
 	def __init__(self, user):
 		self.keys = {}
@@ -74,13 +74,14 @@ class TwitterConnection:
 	def get_user_response(self):
 		user_handle = self.user.get_handle()
 		received_new_tweet = False
-		max_wait = 5
-		starting_wait = 0.5
+		max_wait = 35
+		starting_wait = 1
+		times_checked = 0
 
-		print("Waiting for user response...")
+		print("Waiting for user response - checking every {} seconds for {} seconds...".format(starting_wait, max_wait))
 
 		while not received_new_tweet:
-			if starting_wait >= max_wait:
+			if times_checked >= max_wait:
 				break
 			latest_tweet_lst = self.api.user_timeline(id=user_handle, count=1)
 			if len(latest_tweet_lst) > 0:
@@ -88,14 +89,17 @@ class TwitterConnection:
 				tweet_id = tweet.id
 				if tweet_id != self.last_tweet_id and TwitterConnection.HANGMAN_HANDLE in tweet.text:
 					self.last_tweet_id = tweet_id
-					return tweet.text
+					return tweet.text.replace(TwitterConnection.HANGMAN_HANDLE, "")
 				else:
 					time.sleep(starting_wait)
-					starting_wait += 0.5
+					times_checked += 1
 			else:
-				return "NO TWEETS" # the user has no tweets
+				time.sleep(starting_wait) # the user has no tweets
+				times_checked += 1
 
 		return None
+
+
 
 
 

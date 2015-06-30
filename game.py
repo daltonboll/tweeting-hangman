@@ -54,7 +54,7 @@ class Game:
 				print("word: " + self.word)
 				print("blank_word: " + self.blank_word)
 				print("--------------------\n")
-			self.letter = input("Guess a letter:\n").lower() # ask the user for input, convert to lowercase
+			self.letter = self.get_user_input # ask the user for input, convert to lowercase
 
 			# check to see if the user gave valid input (a single alphabetical letter)
 			if not self.string_is_single_letter(self.letter):
@@ -316,6 +316,12 @@ class Game:
 			print("Successfully tweeted @{}: '{}'".format(self.user_player.get_handle(), text))
 		else:
 			print(text)
+
+	def get_user_input(self):
+		if self.twitter_mode:
+			return self.twitter_connection.get_user_response()
+		else:
+			return input("Guess a letter:\n").lower()
 
 
 
