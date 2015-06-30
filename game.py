@@ -16,6 +16,7 @@ class Game:
 		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
+		self.word_dictionary = {}
 
 	def play(self, mode="easy"):
 		"""
@@ -36,7 +37,7 @@ class Game:
 		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word)) # the mystery word in space and underscore format (_ _ _...)
 
 		# If debugging, display the mystery word info to the console
-		if debug:
+		if Game.debug:
 			print("word: " + self.word)
 			print("word with spaces: '{}'".format(self.word_with_spaces))
 
@@ -89,6 +90,14 @@ class Game:
 		word_list = word_file.readlines() # add each word in the file to a list
 		word_list = word_list[:-1] # remove the last blank line from the list
 		word_file.close() # make sure to close the dictionary file
+
+		for word in word_list: # for each in word in the dictionary:
+			word_length = len(word)
+			if word_length in self.word_dictionary: # store a mapping from word length to a list of words
+				self.word_dictionary[word_length].append(word)
+			else:
+				self.word_dictionary[word_length] = [word]
+		print(self.word_dictionary)
 		print(" done! Let's begin.")
 		return word_list
 
@@ -100,7 +109,7 @@ class Game:
 		# TODO: add more functionality
 		print("Game ended.")
 
-	def find_evil_word(self):
+	def find_evil_word(self, current_word):
 		"""
 		TODO: Returns a word in an 'evil' way. Finds a word in our dictionary that we could
 		secretly replace the mystery word with, given the user just guessed a letter that would
@@ -108,6 +117,8 @@ class Game:
 		the user sees 'p _ _ _'. The user guesses 'o'. We secretly replace the mystery word with
 		'ping' to make the user think that 'o' was not in the mystery word. Note that the new evil
 		mystery word must contain all letters that have already been revealed to the user.
+
+		current_word = a string containing the current word that we are trying to replace
 		"""
 		pass
 
