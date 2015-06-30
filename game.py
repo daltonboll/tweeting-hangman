@@ -1,5 +1,7 @@
 import random
 import string
+import tweepy
+import sys
 
 class Game:
 
@@ -38,23 +40,50 @@ class Game:
 		self.word = word_tuple[0] # the mystery word chosen for the user to guess
 		self.word_with_spaces = word_tuple[1] # the mystery word with spaces
 		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word)) # the mystery word in space and underscore format (_ _ _...)
+		self.last_user_tweet_id = -1
+		self.intro_messages = ["Let's play! Guess a letter from the mystery word: {}".format(self.blank_word), \
+			"Welcome to Twitter Hangman! Here's the mystery word: {}. Guess a letter!".format(self.blank_word), \
+			"Guess a letter (Here's the mystery word: {})".format(self.blank_word)]
 
 		# If debugging, display the mystery word info to the console
 		if Game.debug:
 			print("word: " + self.word)
 			print("word with spaces: '{}'".format(self.word_with_spaces))
 
-		self.message("Welcome to Twitter Hangman! Here's the mystery word: {}. Guess a letter!".format(self.blank_word)) # show the user the mystery word blank spaces
+		random_intro = self.intro_messages[random.randint(0, len(self.intro_messages) - 1)]
+		self.message(random_intro) # show the user the mystery word blank spaces
+		timeout = False
 
 		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
+			
 			if Game.debug:
 				print("--------------------")
 				print("word with spaces: " + self.word_with_spaces)
 				print("word: " + self.word)
 				print("blank_word: " + self.blank_word)
 				print("--------------------\n")
-			self.letter = self.get_user_input # ask the user for input, convert to lowercase
+
+			self.letter = self.get_user_input() # ask the user for input
+
+			if self.twitter_mode and self.letter != None:
+				self.last_user_tweet_id = self.letter[1]
+				self.letter = self.letter[0]
+
+			if self.letter == None:
+				if timeout:
+					print("Game ended due to lack of user response.")
+					self.end_game()
+				else:
+					timeout = True
+					self.message("Do you still want to play? If so, guess a letter! Otherwise, game will timeout in 35 secs.")
+					continue
+			else:
+				timeout = False
+
+			if self.letter == "quit":
+				print("User asked to quit the game.")
+				self.end_game()
 
 			# check to see if the user gave valid input (a single alphabetical letter)
 			if not self.string_is_single_letter(self.letter):
@@ -132,7 +161,8 @@ class Game:
 		to play again, etc.
 		"""
 		# TODO: add more functionality
-		print("Game ended.")
+		print("Ending game.")
+		sys.exit()
 
 	def find_evil_word(self, current_word):
 		"""
@@ -312,14 +342,24 @@ class Game:
 		"""
 		if self.twitter_mode:
 			print("Tweeting @{}...    ".format(self.user_player.get_handle()), end="")
-			self.twitter_connection.tweet_at_user(text)
-			print("Successfully tweeted @{}: '{}'".format(self.user_player.get_handle(), text))
+			try:
+				if self.last_user_tweet_id != -1:
+					self.twitter_connection.tweet_at_user(text, reply_to_status_id=self.last_user_tweet_id)
+				else:
+					self.twitter_connection.tweet_at_user(text)
+			except tweepy.error.TweepError as e:
+				print("Twitter connection returned error: {}".format(e.__dict__))
+				self.end_game()
 		else:
 			print(text)
 
 	def get_user_input(self):
 		if self.twitter_mode:
-			return self.twitter_connection.get_user_response()
+			try:
+				return self.twitter_connection.get_user_response()
+			except tweepy.error.TweepError as e:
+				print("Twitter connection returned error: {}".format(e.__dict__))
+				self.end_game()
 		else:
 			return input("Guess a letter:\n").lower()
 

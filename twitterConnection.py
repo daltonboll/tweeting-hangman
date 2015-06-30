@@ -1,5 +1,8 @@
 import tweepy
 import time
+import random
+import string
+import sys
 from user import User
 
 class TwitterConnection:
@@ -15,11 +18,12 @@ class TwitterConnection:
 		self.auth = ""
 		self.api = ""
 		self.user = user
-		self.last_tweet_id = -1
 
 		self.get_keys()
 		self.set_auth()
 		self.set_api()
+
+		self.last_tweet_id = self.get_users_previous_tweet_id()
 
 	def get_keys(self):
 		keys_file = open(TwitterConnection.KEYS_FILE, "r")
@@ -50,26 +54,67 @@ class TwitterConnection:
 	def get_api(self):
 		return self.api
 
-	def tweet_at_user(self, message):
+	def get_users_previous_tweet_id(self):
 		user_handle = self.user.get_handle()
-		tweet = "@" + user_handle + " " + message
+		try:
+			print("Checking the id of the @{}'s last tweet...".format(user_handle))
+			previous_tweet_lst = self.api.user_timeline(id=user_handle, count=1)
+			if len(previous_tweet_lst) > 0:
+				tweet = previous_tweet_lst[0]
+				tweet_id = tweet.id
+				return tweet_id
+			else:
+				return -1
+		except tweepy.error.TweepError as e:
+			print("Twitter returned an error: {}\n".format(e.__dict__))
+			self.quit()
+
+	def tweet_at_user(self, message, reply_to_status_id=None):
+		user_handle = self.user.get_handle()
+		tweet =  "@" + user_handle + " " + message
+		tweet_copy = tweet[:]
 		success = False
 		time_to_wait = 0
-		failed_text = " - TH :)"
+		max_time_to_wait = 16
+		
 
 		while not success:
+			if time_to_wait > max_time_to_wait:
+				print("Can't successfully tweet user - too many timeouts.")
+				self.quit()
 			try:
-				self.api.update_status(status=tweet)
+				custom_hash = self.get_duplicate_avoider_hash() + " "
+				if reply_to_status_id != None:
+					self.api.update_status(status=(custom_hash + tweet), in_reply_to_status_id=reply_to_status_id)
+				else:
+					self.api.update_status(status=(custom_hash + tweet))
+
+				print("Successfully tweeted @{}: '{}'".format(user_handle, (custom_hash + tweet)))
 				success = True
+
 			except tweepy.error.TweepError as e:
 				time_to_wait += 3
-				print("Twitter returned an error: {}\n".format(e))
+				print("Twitter returned an error: {}\n".format(e.__dict__))
 				print("Trying again in {} seconds...".format(time_to_wait))
 				time.sleep(time_to_wait)
-				if failed_text in tweet:
-					tweet = tweet.replace(failed_text, "")
-				else:
-					tweet = tweet + failed_text
+
+
+	def get_duplicate_avoider_hash(self):
+		letters = string.ascii_lowercase
+		numbers = "0123456789"
+		custom_hash = ""
+
+		rand_num = random.randint(0, 25)
+		custom_hash += letters[rand_num]
+		rand_num = random.randint(0, 9)
+		custom_hash += numbers[rand_num]
+		rand_num = random.randint(0, 25)
+		custom_hash += letters[rand_num]
+
+		return custom_hash
+
+
+
 
 	def get_user_response(self):
 		user_handle = self.user.get_handle()
@@ -78,7 +123,7 @@ class TwitterConnection:
 		starting_wait = 1
 		times_checked = 0
 
-		print("Waiting for user response - checking every {} seconds for {} seconds...".format(starting_wait, max_wait))
+		print("Waiting for user response - checking every {} seconds for {} seconds... ".format(starting_wait, max_wait))
 
 		while not received_new_tweet:
 			if times_checked >= max_wait:
@@ -89,23 +134,34 @@ class TwitterConnection:
 				tweet_id = tweet.id
 				if tweet_id != self.last_tweet_id and TwitterConnection.HANGMAN_HANDLE in tweet.text:
 					self.last_tweet_id = tweet_id
-					return tweet.text.replace(TwitterConnection.HANGMAN_HANDLE, "")
+					tweet_text = tweet.text.replace(TwitterConnection.HANGMAN_HANDLE, "").lower()
+					print("@{} responded: '{}'".format(user_handle, tweet_text))
+					return (tweet_text, tweet_id)
 				else:
-					time.sleep(starting_wait)
+					print(times_checked, end=", ")
 					times_checked += 1
+					time.sleep(starting_wait)
+					sys.stdout.flush()
 			else:
-				time.sleep(starting_wait) # the user has no tweets
+				print(times_checked, end=", ")
 				times_checked += 1
+				time.sleep(starting_wait) # the user has no tweets
+				sys.stdout.flush()
 
+		print("User response timed out.")
 		return None
 
+	def quit(self):
+		print("Qutting game.")
+		sys.exit()
 
 
 
 
 
+"""
 connection = TwitterConnection(User("google"))
 latest_tweet = connection.get_user_response()
 
 print("latest tweet: {}".format(latest_tweet))
-
+"""
