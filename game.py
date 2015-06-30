@@ -5,18 +5,21 @@ class Game:
 
 	MAX_GUESSES = 6 # the maximum guesses a User can have before the game ends
 	WORD_FILE_PATH = "wordProcessor/words.txt" # the path of the word dictionary
-	debug = True # when debug is True, print extra output to the console for debugging use
+	debug = False # when debug is True, print extra output to the console for debugging use
 
-	def __init__(self, computer_player, user_player):
+	def __init__(self, computer_player, user_player, twitter_connection, twitter_mode=True):
 		"""
 		Initialize the game. Set computer_player and user_player variables.
 
 		computer_player = the User that is the computer player
 		user_player = the User that is the human player
+		twitter_connection = an instance of the TwitterConnection class
 		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
 		self.word_dictionary = {}
+		self.twitter_connection = twitter_connection
+		self.twitter_mode = twitter_mode
 
 	def play(self, evil_mode=False):
 		"""
@@ -41,7 +44,7 @@ class Game:
 			print("word: " + self.word)
 			print("word with spaces: '{}'".format(self.word_with_spaces))
 
-		print("Here's the mystery word: " + self.blank_word) # show the user the mystery word blank spaces
+		self.message("Welcome to Twitter Hangman! Here's the mystery word: {}. Guess a letter!".format(self.blank_word)) # show the user the mystery word blank spaces
 
 		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
@@ -53,15 +56,14 @@ class Game:
 				print("--------------------\n")
 			self.letter = input("Guess a letter:\n").lower() # ask the user for input, convert to lowercase
 
-
 			# check to see if the user gave valid input (a single alphabetical letter)
 			if not self.string_is_single_letter(self.letter):
-				print("Uh oh, that's not a valid input. Try single alphabetical letters please!")
+				self.message("Invalid input. Try single alphabetical letters please! Guess a letter!")
 				continue
 
 			# check to see if the user has already guessed that letter before
 			if self.letter in self.letters_guessed:
-				print("Woops! You already guessed the letter '{}'.".format(self.letter))
+				self.message("Woops! You already guessed the letter '{}'. Guess a new letter!".format(self.letter))
 				continue
 			else:
 				self.letters_guessed.append(self.letter) # if not, add the letter to letters_guessed
@@ -82,26 +84,24 @@ class Game:
 						print("Old mystery word: {}; Old word_with_spaces: {}; Old blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
 					self.word = evil_word
 					self.word_with_spaces = self.add_spaces_to_word(evil_word)
-					print("New mystery word: {}; New word_with_spaces: {}; New blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
+					if Game.debug:
+						print("New mystery word: {}; New word_with_spaces: {}; New blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
 					changed = False
 
 			if changed: # if the letter was changed or we failed to find a new evil word:
 				count = changed_tuple[1]
 				self.set_new_blank_word(blank_word_with_letters_replaced) # set our updated blank_word
-				print("\nCongratulations! The letter '{}'' occured {} times.".format(self.letter, count))
-				print("The mystery word is now: {}\n".format(self.blank_word))
+				self.message("Congratulations! The letter '{}'' occured {} times. The mystery word is now: {}".format(self.letter, count, self.blank_word))
 
 			if not changed: # else, decrease their guesses remaining and notify them
-				print("\nSorry! The letter '{}'' does not appear in the mystery word.".format(self.letter))
 				self.wrong_guesses += 1
-				print("You've got {} guesses remaining.".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses)))
-				print("Here's the mystery word: " + self.blank_word)
+				self.message("The letter '{}' doesn't appear. {} guesses remaining. Mystery word: {}. Guess a letter!".format(self.letter, self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.blank_word))
 
 		# once the guessing has stopped, check to see if the game finished because of winning or losing
 		if self.blank_word == self.word_with_spaces:
-			print("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
+			self.message("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
 		else:
-			print("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
+			self.message("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
 		self.end_game() # end the game by closing interactions with Twitter, asking to play again, etc.
 
 	def load_words(self):
@@ -302,6 +302,20 @@ class Game:
 		alphabet = string.ascii_lowercase # a string containing each lowercase letter of the alphabet
 
 		return len(str) == 1 and str in alphabet
+
+	def message(self, text):
+		"""
+		Communicates with the player via the print command over the terminal, or via Twitter - 
+		depending on which mode the program is running in (based on self.twitter_mode).
+
+		text = the text to communicate to the user
+		"""
+		if self.twitter_mode:
+			print("Tweeting @{}...    ".format(self.user_player.get_handle()), end="")
+			self.twitter_connection.tweet_at_user(text)
+			print("Successfully tweeted @{}: '{}'".format(self.user_player.get_handle(), text))
+		else:
+			print(text)
 
 
 

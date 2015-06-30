@@ -1,9 +1,12 @@
 import tweepy
+import time
+from user import User
 
 class TwitterConnection:
 	KEYS_FILE = "keys"
+	HANGMAN_HANDLE = "@TweetingHangman"
 
-	def __init__(self):
+	def __init__(self, user):
 		self.keys = {}
 		self.consumer_key = ""
 		self.consumer_secret = ""
@@ -11,7 +14,8 @@ class TwitterConnection:
 		self.access_token_secret = ""
 		self.auth = ""
 		self.api = ""
-		self.user = ""
+		self.user = user
+		self.last_tweet_id = -1
 
 		self.get_keys()
 		self.set_auth()
@@ -46,15 +50,58 @@ class TwitterConnection:
 	def get_api(self):
 		return self.api
 
-	def tweet_at_user(self, user):
-		# TODO: implement tweeting
-		user_handle = user.get_handle()
+	def tweet_at_user(self, message):
+		user_handle = self.user.get_handle()
+		tweet = "@" + user_handle + " " + message
+		success = False
+		time_to_wait = 0
+		failed_text = " - TH :)"
+
+		while not success:
+			try:
+				self.api.update_status(status=tweet)
+				success = True
+			except tweepy.error.TweepError as e:
+				time_to_wait += 3
+				print("Twitter returned an error: {}\n".format(e))
+				print("Trying again in {} seconds...".format(time_to_wait))
+				time.sleep(time_to_wait)
+				if failed_text in tweet:
+					tweet = tweet.replace(failed_text, "")
+				else:
+					tweet = tweet + failed_text
+
+	def get_user_response(self):
+		user_handle = self.user.get_handle()
+		received_new_tweet = False
+		max_wait = 5
+		starting_wait = 0.5
+
+		print("Waiting for user response...")
+
+		while not received_new_tweet:
+			if starting_wait >= max_wait:
+				break
+			latest_tweet_lst = self.api.user_timeline(id=user_handle, count=1)
+			if len(latest_tweet_lst) > 0:
+				tweet = latest_tweet_lst[0]
+				tweet_id = tweet.id
+				if tweet_id != self.last_tweet_id and TwitterConnection.HANGMAN_HANDLE in tweet.text:
+					self.last_tweet_id = tweet_id
+					return tweet.text
+				else:
+					time.sleep(starting_wait)
+					starting_wait += 0.5
+			else:
+				return "NO TWEETS" # the user has no tweets
+
+		return None
 
 
-connection = TwitterConnection()
-api = connection.get_api()
-public_tweets = api.home_timeline()
-for tweet in public_tweets:
-    print(tweet.text)
 
-api.update_status(status="hello")
+
+connection = TwitterConnection(User("google"))
+latest_tweet = connection.get_user_response()
+
+print("latest tweet: {}".format(latest_tweet))
+

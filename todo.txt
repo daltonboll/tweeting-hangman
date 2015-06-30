@@ -1,7 +1,6 @@
 TODO:
 - allow user to ask for letters already guessed
 - add visual depiction of hangman
-- make 'evil' option
 
 Twitter:
 - implement twitter functionality
