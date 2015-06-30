@@ -46,9 +46,11 @@ class Game:
 		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
 			if Game.debug:
+				print("--------------------")
 				print("word with spaces: " + self.word_with_spaces)
 				print("word: " + self.word)
 				print("blank_word: " + self.blank_word)
+				print("--------------------\n")
 			self.letter = input("Guess a letter:\n").lower() # ask the user for input, convert to lowercase
 
 
@@ -71,15 +73,20 @@ class Game:
 			changed = changed_tuple[0] # get the boolean
 			blank_word_with_letters_replaced = changed_tuple[2]
 
-			if changed and evil_mode: # if the user guessed a valid letter, notify them
+			go_evil = True
+			if Game.MAX_GUESSES - self.wrong_guesses < 3:
+				go_evil = bool(random.getrandbits(1)) # randomly decide with 50% probability to turn evil if the player is losing badly
+
+			if changed and evil_mode and go_evil: # if the user guessed a valid letter, notify them
 				evil_word = self.find_evil_word(self.blank_word)
 				if evil_word != None:
 					if Game.debug:
 						print("Found a new evil word: {}\n".format(evil_word))
-					new_blank_word = self.add_spaces_to_word(self.get_blank_word(evil_word)) # set the new blank_word to the formatted evil word
+					if Game.debug:
+						print("Old mystery word: {}; Old word_with_spaces: {}; Old blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
 					self.word = evil_word
 					self.word_with_spaces = self.add_spaces_to_word(evil_word)
-					self.set_new_blank_word(new_blank_word) # set our updated blank_word
+					print("New mystery word: {}; New word_with_spaces: {}; New blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
 					changed = False
 
 			if changed: # if the letter was changed or we failed to find a new evil word:
@@ -152,7 +159,8 @@ class Game:
 			cutoff += 1 # keep track of the cutoff so we don't have to re-check again in the future
 			if self.can_replace(current_word, word) and word != self.word: # if the new word is a valid replacement and it's not equal to the previous word:
 				self.word_dictionary[word_length] = list_of_possible_words[cutoff:] # remove invalid replacements
-				print("found a new evil word: {}!".format(word))
+				if Game.debug:
+					print("found a new evil word: {}!".format(word))
 				return word # return the evil word that we found
 
 		self.word_dictionary[word_length] = [] # there are no possible words to change to
@@ -169,28 +177,33 @@ class Game:
 		spaced_word = a string of the format 'p _ _ r'
 		word = a string of the format 'pour'
 		"""
-		#TODO: make sure the letters in the new word weren't previously guessed
-		print("in can_replace| comparing {} to {}".format(word, spaced_word))
+		if Game.debug:
+			print("in can_replace| comparing {} to {}".format(word, spaced_word))
 		word_to_replace = self.add_spaces_to_word(word)
 		found_valid_letter = False
 
 		for index, letter in enumerate(spaced_word):
 			if letter != ' ':
 				if word_to_replace[index] in self.letters_guessed and word_to_replace[index] not in spaced_word:
-					print("The letter '{}' was already guessed before!".format(word_to_replace[index]))
+					if Game.debug:
+						print("The letter '{}' was already guessed before!".format(word_to_replace[index]))
 					return False
 				if letter == word_to_replace[index] or letter == '_':
-					print("The letter '{}' matched!".format(letter))
+					if Game.debug:
+						print("The letter '{}' matched!".format(letter))
 					found_valid_letter = True
 					continue
 				else:
-					print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
+					if Game.debug:
+						print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
 					return False
 		if found_valid_letter:
-			print("The word '{}' did match '{}'".format(word_to_replace, spaced_word))
+			if Game.debug:
+				print("The word '{}' did match '{}'".format(word_to_replace, spaced_word))
 			return True
 		else:
-			print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
+			if Game.debug:
+				print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
 
 
 	def find_word(self, mode="easy"):
