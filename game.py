@@ -73,11 +73,7 @@ class Game:
 			changed = changed_tuple[0] # get the boolean
 			blank_word_with_letters_replaced = changed_tuple[2]
 
-			go_evil = True
-			if Game.MAX_GUESSES - self.wrong_guesses < 3:
-				go_evil = bool(random.getrandbits(1)) # randomly decide with 50% probability to turn evil if the player is losing badly
-
-			if changed and evil_mode and go_evil: # if the user guessed a valid letter, notify them
+			if changed and evil_mode: # if the user guessed a valid letter, notify them
 				evil_word = self.find_evil_word(self.blank_word)
 				if evil_word != None:
 					if Game.debug:
@@ -155,10 +151,12 @@ class Game:
 		list_of_possible_words = self.word_dictionary[word_length]
 		cutoff = 0
 
-		for word in list_of_possible_words:
-			cutoff += 1 # keep track of the cutoff so we don't have to re-check again in the future
+		while len(list_of_possible_words) > 1:
+			index = random.randint(0, len(list_of_possible_words) - 1)
+			word = list_of_possible_words[index]
+			list_of_possible_words.remove(word)
 			if self.can_replace(current_word, word) and word != self.word: # if the new word is a valid replacement and it's not equal to the previous word:
-				self.word_dictionary[word_length] = list_of_possible_words[cutoff:] # remove invalid replacements
+				self.word_dictionary[word_length] = list_of_possible_words # remove invalid replacements
 				if Game.debug:
 					print("found a new evil word: {}!".format(word))
 				return word # return the evil word that we found
