@@ -92,12 +92,13 @@ class Game:
 		word_file.close() # make sure to close the dictionary file
 
 		for word in word_list: # for each in word in the dictionary:
+			word = word[:-1] # remove the trailing \n character from the word
 			word_length = len(word)
 			if word_length in self.word_dictionary: # store a mapping from word length to a list of words
 				self.word_dictionary[word_length].append(word)
 			else:
 				self.word_dictionary[word_length] = [word]
-		print(self.word_dictionary)
+		
 		print(" done! Let's begin.")
 		return word_list
 
@@ -116,11 +117,48 @@ class Game:
 		reveal extra spaces in our mystery word. E.g. current mystery word = 'pour'. Currently,
 		the user sees 'p _ _ _'. The user guesses 'o'. We secretly replace the mystery word with
 		'ping' to make the user think that 'o' was not in the mystery word. Note that the new evil
-		mystery word must contain all letters that have already been revealed to the user.
+		mystery word must contain all letters that have already been revealed to the user. If no 
+		evil word is found, return None
 
-		current_word = a string containing the current word that we are trying to replace
+		current_word = a string containing the current word that we are trying to replace, of the 
+			format '_ a _ _ ...'
 		"""
-		pass
+		word_length = len(current_word.replace(" ", "")) # the length of the current word without spaces
+		list_of_possible_words = self.word_dictionary[word_length]
+		cutoff = 0
+
+		for word in list_of_possible_words:
+			cutoff += 1 # keep track of the cutoff so we don't have to re-check again in the future
+			if self.can_replace(current_word, word) and word != self.word: # if the new word is a valid replacement and it's not equal to the previous word:
+				self.word_dictionary[word_length] = list_of_possible_words[cutoff:] # remove invalid replacements
+				return word # return the evil word that we found
+
+		self.word_dictionary[word_length] = [] # there are no possible words to change to
+		return None
+
+	def can_replace(self, spaced_word, word):
+		"""
+		Given a spaced_word of the format 'p _ _ r', and a word of the format 'pour', 
+		will return true if the '_ _' can be filled in behind the scenes with the new 
+		word. In this case, it would return True because 'p' and 'r' are already set 
+		in both words, and there are two blank spaces that are left to be filled in 
+		by any letter.
+
+		spaced_word = a string of the format 'p _ _ r'
+		word = a string of the format 'pour'
+		"""
+		#TODO: make sure the letters in the new word weren't previously guessed
+		word_to_replace = self.add_spaces_to_word(word)
+		for index, letter in enumerate(spaced_word):
+			if letter != '_':
+				if letter == word[index]:
+					continue
+				else:
+					print("The word '{}' DID NOT match '{}'".format(word, spaced_word))
+					return False
+		print("The word '{}' did matched '{}'".format(word, spaced_word))
+		return True
+
 
 	def find_word(self, mode="easy"):
 		"""
