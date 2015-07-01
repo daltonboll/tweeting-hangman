@@ -90,7 +90,7 @@ class Application(Frame):
         player = User(handle)
         twitter_connection = TwitterConnection(player, twitter_mode=playing_with_twitter)
 
-        self.game = Game("computer", player, twitter_connection, twitter_mode=playing_with_twitter) # create a new game instance. TODO: create computer/user from User class
+        self.game = Game("computer", player, twitter_connection, twitter_mode=playing_with_twitter) # create a new game instance
         self.game.play(evil_mode=playing_evil_mode) # start the game!
         print("Gathering user input values...")
         username = self.username_field.get()

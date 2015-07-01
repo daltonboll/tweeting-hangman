@@ -5,6 +5,10 @@ import sys
 from tkinter import *
 
 class Game:
+	"""
+	The Game class is the 'control' of TweetingHangman. It loops and gathers 
+	user input, and directs interaction with the User.
+	"""
 
 	MAX_GUESSES = 6 # the maximum guesses a User can have before the game ends
 	WORD_FILE_PATH = "wordProcessor/words.txt" # the path of the word dictionary
@@ -21,7 +25,7 @@ class Game:
 		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
-		self.word_dictionary = {}
+		self.word_dictionary = {} # used in 'evil' mode - maps word length to a list of words of that length
 		self.twitter_connection = twitter_connection
 		self.twitter_mode = twitter_mode
 
@@ -161,16 +165,14 @@ class Game:
 
 	def end_game(self):
 		"""
-		TODO: End the game by closing connections with Twitter, asking the user if they'd like
-		to play again, etc.
+		Quits the game and exits the program.
 		"""
-		# TODO: add more functionality
 		print("Ending game.")
 		sys.exit()
 
 	def find_evil_word(self, current_word):
 		"""
-		TODO: Returns a word in an 'evil' way. Finds a word in our dictionary that we could
+		Returns a word in an 'evil' way. Finds a word in our dictionary that we could
 		secretly replace the mystery word with, given the user just guessed a letter that would
 		reveal extra spaces in our mystery word. E.g. current mystery word = 'pour'. Currently,
 		the user sees 'p _ _ _'. The user guesses 'o'. We secretly replace the mystery word with
@@ -238,12 +240,10 @@ class Game:
 				print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
 
 
-	def find_word(self, mode="easy"):
+	def find_word(self):
 		"""
 		Returns a tuple with (a random word from our dictionary, that word with spaces
-		for formatting). TODO: when mode="evil", set out to find an evil word.
-
-		mode = a string containing either "easy" or "evil"
+		for formatting).
 		"""
 		random_number = random.randint(0, self.word_list_length - 1) # generate a random number between 0 and the length of our word list - 1
 		word = self.word_list[random_number] # get the random word
