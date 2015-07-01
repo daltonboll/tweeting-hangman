@@ -2,6 +2,7 @@ import random
 import string
 import tweepy
 import sys
+from tkinter import *
 
 class Game:
 
@@ -16,6 +17,7 @@ class Game:
 		computer_player = the User that is the computer player
 		user_player = the User that is the human player
 		twitter_connection = an instance of the TwitterConnection class
+		twitter_mode = when true, we are sending tweets over Twitter
 		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
@@ -127,10 +129,12 @@ class Game:
 				self.message("The letter '{}' doesn't appear. {} guesses remaining. Mystery word: {}. Guess a letter!".format(self.letter, self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.blank_word))
 
 		# once the guessing has stopped, check to see if the game finished because of winning or losing
+
 		if self.blank_word == self.word_with_spaces:
 			self.message("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
 		else:
 			self.message("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
+
 		self.end_game() # end the game by closing interactions with Twitter, asking to play again, etc.
 
 	def load_words(self):

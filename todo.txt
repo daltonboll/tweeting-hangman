@@ -1,15 +1,12 @@
 TODO:
 - allow user to ask for letters already guessed
-- add visual depiction of hangman
-
-Twitter:
-- implement twitter functionality
-- add User class
 
 General:
 - add comments
 - update readme
 - go through comment TODO's
+- fix console mode not printing everything
+- add evil toggle
 
 Possibly:
 - user interface

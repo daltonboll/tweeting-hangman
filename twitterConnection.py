@@ -9,7 +9,7 @@ class TwitterConnection:
 	KEYS_FILE = "keys"
 	HANGMAN_HANDLE = "@TweetingHangman "
 
-	def __init__(self, user):
+	def __init__(self, user, twitter_mode):
 		self.keys = {}
 		self.consumer_key = ""
 		self.consumer_secret = ""
@@ -18,12 +18,14 @@ class TwitterConnection:
 		self.auth = ""
 		self.api = ""
 		self.user = user
+		self.twitter_mode = twitter_mode
 
-		self.get_keys()
-		self.set_auth()
-		self.set_api()
+		if self.twitter_mode:
+			self.get_keys()
+			self.set_auth()
+			self.set_api()
 
-		self.last_tweet_id = self.get_users_previous_tweet_id()
+			self.last_tweet_id = self.get_users_previous_tweet_id()
 
 	def get_keys(self):
 		keys_file = open(TwitterConnection.KEYS_FILE, "r")
@@ -113,17 +115,14 @@ class TwitterConnection:
 
 		return custom_hash
 
-
-
-
 	def get_user_response(self):
 		user_handle = self.user.get_handle()
 		received_new_tweet = False
-		max_wait = 35
-		starting_wait = 1
+		max_wait = 7
+		starting_wait = 5
 		times_checked = 0
 
-		print("Waiting for user response - checking every {} seconds for {} seconds... ".format(starting_wait, max_wait))
+		print("Waiting for user response - checking every {} seconds for {} seconds... ".format(starting_wait, max_wait * starting_wait))
 
 		while not received_new_tweet:
 			if times_checked >= max_wait:
@@ -154,14 +153,3 @@ class TwitterConnection:
 	def quit(self):
 		print("Qutting game.")
 		sys.exit()
-
-
-
-
-
-"""
-connection = TwitterConnection(User("google"))
-latest_tweet = connection.get_user_response()
-
-print("latest tweet: {}".format(latest_tweet))
-"""
