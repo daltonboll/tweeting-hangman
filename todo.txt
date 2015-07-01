@@ -1,13 +1,7 @@
 TODO:
-- allow user to ask for letters already guessed
 
 General:
 - add comments
 - update readme
 - go through comment TODO's
 - fix console mode not printing everything
-- add evil toggle
-
-Possibly:
-- user interface
-
