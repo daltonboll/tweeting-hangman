@@ -6,26 +6,30 @@ import sys
 from user import User
 
 class TwitterConnection:
-	KEYS_FILE = "keys"
-	HANGMAN_HANDLE = "@TweetingHangman "
+	KEYS_FILE = "keys" # the name of the file where the Twitter authorization keys are stored
+	HANGMAN_HANDLE = "@TweetingHangman " # the Twitter handle of the account held for the Tweeting Hangman program
 
 	def __init__(self, user, twitter_mode):
-		self.keys = {}
-		self.consumer_key = ""
-		self.consumer_secret = ""
-		self.access_token = ""
-		self.access_token_secret = ""
-		self.auth = ""
-		self.api = ""
-		self.user = user
-		self.twitter_mode = twitter_mode
+		"""
+		user = a User object, which we are tweeting at
+		twitter_mode = a boolean, True if we should try and connect to Twitter. 
+			When False, the TwitterConnection object is stagnant.
+		"""
+		self.keys = {} # a dictionary that maps the Twitter authorization keys
+		self.consumer_key = "" # Twitter consumer key
+		self.consumer_secret = "" # Twitter consumer secret key
+		self.access_token = "" # Twitter access token key
+		self.access_token_secret = "" # Twitter access token secret key
+		self.auth = "" # Tweepy auth
+		self.api = "" # Tweepy api
+		self.user = user # the Twitter user we are tweeting at
+		self.twitter_mode = twitter_mode # true if we are actively connecting to Twitter
 
-		if self.twitter_mode:
+		if self.twitter_mode: # if we should connec to Twitter, set up our connection
 			self.get_keys()
 			self.set_auth()
 			self.set_api()
-
-			self.last_tweet_id = self.get_users_previous_tweet_id()
+			self.last_tweet_id = self.get_users_previous_tweet_id() # grab the id of the last tweet of our User
 
 	def get_keys(self):
 		keys_file = open(TwitterConnection.KEYS_FILE, "r")
