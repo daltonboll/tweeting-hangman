@@ -1,4 +1,6 @@
 TODO:
 
-General:
-- update readme
+Way off in the future:
+- maybe grey out START and QUIT buttons in certain cases (if game has started, grey out START. if twitter mode, grey out QUIT)
+- Fix the tkinter interface freezing during polling
+- Better responses to Twitter errors 
