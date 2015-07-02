@@ -2,7 +2,6 @@ import random
 import string
 import tweepy
 import sys
-from tkinter import *
 
 class Game:
 	"""
