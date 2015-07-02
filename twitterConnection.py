@@ -126,7 +126,7 @@ class TwitterConnection:
 		starting_wait = 5
 		times_checked = 0
 
-		print("Waiting for user response - checking every {} seconds for {} seconds... ".format(starting_wait, max_wait * starting_wait))
+		print("\nWaiting for user response - checking every {} seconds for {} seconds... ".format(starting_wait, max_wait * starting_wait))
 
 		while not received_new_tweet:
 			if times_checked >= max_wait:

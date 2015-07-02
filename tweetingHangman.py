@@ -5,14 +5,13 @@ USAGE: Run 'python3 tweetingHangman.py' from this project's directory. Interact 
 
 This file is the 'control' of the game, where a new Game instance is initialized and Users are set.
 The GUI is also produced in this file.
-
 """
 
-from game import Game
-from user import User
-from twitterConnection import TwitterConnection
-from tkinter import *
-import tkinter.messagebox
+from game import Game # for playing the Twitter Hangman game
+from user import User # for giving the game a user
+from twitterConnection import TwitterConnection # for communicating with Twitter
+from tkinter import * # for GUI creation
+import tkinter.messagebox # for popup message box creation
 
 
 class Application(Frame):
@@ -22,7 +21,7 @@ class Application(Frame):
     Frame object.
     """
 
-    DEBUG = False
+    debug = False
 
     def __init__(self, master=None):
         """
@@ -120,7 +119,7 @@ class Application(Frame):
             tkinter.messagebox.showerror("Error", "Twitter handle can't be blank when playing in Twitter mode.") # show an error popup
             return # return back to the GUI if the user doesn't enter a username
 
-        if Application.DEBUG: # print to the console only when debugging
+        if Application.debug: # print to the console only when debugging
             print("Playing against @{}".format(handle))
             print("Playing with Twitter? {}".format(bool(playing_with_twitter)))
             print("Playing evil mode? {}".format(bool(playing_evil_mode)))

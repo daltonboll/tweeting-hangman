@@ -1,7 +1,13 @@
-import random
-import string
-import tweepy
-import sys
+"""
+Author: Dalton Boll
+
+USAGE: Run 'python3 tweetingHangman.py' from this project's directory. Interact with the GUI to play!
+"""
+
+import random # for random number generation
+import string # for grabbing all legal alphabetical characters
+import tweepy # for connecting to Twitter
+import sys # for exiting the program
 
 class Game:
 	"""
@@ -15,12 +21,12 @@ class Game:
 
 	def __init__(self, computer_player, user_player, twitter_connection, twitter_mode=True):
 		"""
-		Initialize the game. Set computer_player and user_player variables.
+		Initialize the game.
 
 		computer_player = the User that is the computer player
 		user_player = the User that is the human player
 		twitter_connection = an instance of the TwitterConnection class
-		twitter_mode = when true, we are sending tweets over Twitter
+		twitter_mode = when true, we are sending tweets over Twitter and not playing through the terminal
 		"""
 		self.computer_player = computer_player
 		self.user_player = user_player
@@ -31,7 +37,7 @@ class Game:
 	def play(self, evil_mode=False):
 		"""
 		The 'brain' of the game. Handles collecting input and keeps the game flowing.
-		The mode is default to 'easy', which is normal hangman. When the mode is 'evil',
+		The evil_mode argument is defaulted to False, which is normal hangman. When True,
 		the computer player will be smart about its words and try to make the User lose 
 		at all costs.
 
@@ -45,7 +51,8 @@ class Game:
 		self.word = word_tuple[0] # the mystery word chosen for the user to guess
 		self.word_with_spaces = word_tuple[1] # the mystery word with spaces
 		self.blank_word = self.add_spaces_to_word(self.get_blank_word(self.word)) # the mystery word in space and underscore format (_ _ _...)
-		self.last_user_tweet_id = -1
+		self.last_user_tweet_id = -1 # the id of the user's last tweet
+		# a list of possible welcome messages, used to keep Twitter duplicate tweet detection away
 		self.intro_messages = ["Let's play! Guess a letter from the mystery word: {}".format(self.blank_word), \
 			"Welcome to Twitter Hangman! Here's the mystery word: {}. Guess a letter!".format(self.blank_word), \
 			"Guess a letter (Here's the mystery word: {})".format(self.blank_word)]
@@ -55,14 +62,14 @@ class Game:
 			print("word: " + self.word)
 			print("word with spaces: '{}'".format(self.word_with_spaces))
 
-		random_intro = self.intro_messages[random.randint(0, len(self.intro_messages) - 1)]
+		random_intro = self.intro_messages[random.randint(0, len(self.intro_messages) - 1)] # choose a random intro message
 		self.message(random_intro) # show the user the mystery word blank spaces
-		timeout = False
+		timeout = False # timeout is True when we haven't received a user response in a while
 
 		# while the user hasn't guessed every letter AND the user still has guesses remaining:
 		while self.blank_word != self.word_with_spaces and self.wrong_guesses < Game.MAX_GUESSES:
 			
-			if Game.debug:
+			if Game.debug: # print debugging statements if we are in debug mode
 				print("--------------------")
 				print("word with spaces: " + self.word_with_spaces)
 				print("word: " + self.word)
@@ -71,21 +78,23 @@ class Game:
 
 			self.letter = self.get_user_input() # ask the user for input
 
-			if self.twitter_mode and self.letter != None:
-				self.last_user_tweet_id = self.letter[1]
-				self.letter = self.letter[0]
+			if self.twitter_mode and self.letter != None: # if we are in twitter mode and we have a user response:
+				self.last_user_tweet_id = self.letter[1] # set the tweet id of the response
+				self.letter = self.letter[0] # set the text of the tweet response
 
-			if self.letter == None:
-				if timeout:
+			if self.letter == None: # if we have don't have a user response:
+				if timeout: # if this is the second time in a row without a response on the same turn, end the game
 					print("Game ended due to lack of user response.")
 					self.end_game()
 				else:
-					timeout = True
+					timeout = True # set the timeout variable for a possible game termination next turn if there is no response again
+					# rempromp the user for input, and continue on
 					self.message("Do you still want to play? If so, guess a letter! Otherwise, game will timeout in 35 secs.")
 					continue
-			else:
+			else: # we received a response, end the timeout cycle
 				timeout = False
 
+			# quit the game if the user asks
 			if self.letter == "quit":
 				print("User asked to quit the game.")
 				self.end_game()
@@ -107,42 +116,41 @@ class Game:
 			# grab a tuple with (boolean of whether or not the user's letter was in the word, count of how many times the letter appeared in the word, and the blank word with letters replaced)
 			changed_tuple = self.replace_letters(self.letter, self.word_with_spaces, self.blank_word)
 			changed = changed_tuple[0] # get the boolean
-			blank_word_with_letters_replaced = changed_tuple[2]
+			blank_word_with_letters_replaced = changed_tuple[2] # get the blank word with letters replaced 
 
-			if changed and evil_mode: # if the user guessed a valid letter, notify them
-				evil_word = self.find_evil_word(self.blank_word)
-				if evil_word != None:
+			if changed and evil_mode: # if the user guessed a valid letter and we're in evil mode:
+				evil_word = self.find_evil_word(self.blank_word) # find a possible evil word for the current game layout
+				if evil_word != None: # if we found an evil word:
 					if Game.debug:
 						print("Found a new evil word: {}\n".format(evil_word))
-					if Game.debug:
 						print("Old mystery word: {}; Old word_with_spaces: {}; Old blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
+					# reset the word to the evil word
 					self.word = evil_word
 					self.word_with_spaces = self.add_spaces_to_word(evil_word)
 					if Game.debug:
 						print("New mystery word: {}; New word_with_spaces: {}; New blank_word: {}\n".format(self.word, self.word_with_spaces, self.blank_word))
-					changed = False
+					changed = False # the user 'did not' (hehe) guess a correct letter!
 
-			if changed: # if the letter was changed or we failed to find a new evil word:
-				count = changed_tuple[1]
+			if changed: # if the user guessed a correct letter and/or we failed to find a new evil word:
+				count = changed_tuple[1] # the number of times the letter appeared in the word
 				self.set_new_blank_word(blank_word_with_letters_replaced) # set our updated blank_word
 				self.message("Congratulations! The letter '{}'' occured {} times. The mystery word is now: {}".format(self.letter, count, self.blank_word))
 
-			if not changed: # else, decrease their guesses remaining and notify them
+			if not changed: # else, decrease their guesses remaining by incrementing wrong guesses and notify them
 				self.wrong_guesses += 1
 				self.message("The letter '{}' doesn't appear. {} guesses remaining. Mystery word: {}. Guess a letter!".format(self.letter, self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.blank_word))
 
 		# once the guessing has stopped, check to see if the game finished because of winning or losing
-
 		if self.blank_word == self.word_with_spaces:
 			self.message("Woohoo! You guessed the word with {} guesses left! It was '{}'. Thanks for playing!".format(self.get_remaining_guesses(Game.MAX_GUESSES, self.wrong_guesses), self.word))
 		else:
 			self.message("Dang - looks like you ran out of guesses! Try again next time. (The word was '{}')".format(self.word))
 
-		self.end_game() # end the game by closing interactions with Twitter, asking to play again, etc.
+		self.end_game() # end the game once the guessing has stopped
 
 	def load_words(self):
 		"""
-		Returns a list of all of our possible words in our dictionary that we could use as
+		Returns a list of all of the possible words in our dictionary that we could use as
 		the mystery word.
 		"""
 		print("Loading dictionary...", end="")
@@ -166,7 +174,7 @@ class Game:
 		"""
 		Quits the game and exits the program.
 		"""
-		print("Ending game.")
+		print("Ending the game.")
 		sys.exit()
 
 	def find_evil_word(self, current_word):
@@ -177,19 +185,18 @@ class Game:
 		the user sees 'p _ _ _'. The user guesses 'o'. We secretly replace the mystery word with
 		'ping' to make the user think that 'o' was not in the mystery word. Note that the new evil
 		mystery word must contain all letters that have already been revealed to the user. If no 
-		evil word is found, return None
+		evil word is found, return None.
 
 		current_word = a string containing the current word that we are trying to replace, of the 
 			format '_ a _ _ ...'
 		"""
 		word_length = len(current_word.replace(" ", "")) # the length of the current word without spaces
-		list_of_possible_words = self.word_dictionary[word_length]
-		cutoff = 0
+		list_of_possible_words = self.word_dictionary[word_length] # the possible words we could replace the current_word with
 
-		while len(list_of_possible_words) > 1:
-			index = random.randint(0, len(list_of_possible_words) - 1)
+		while len(list_of_possible_words) > 1: # while we still have possible evil words left:
+			index = random.randint(0, len(list_of_possible_words) - 1) # randomly select a possible word to prevent patterns
 			word = list_of_possible_words[index]
-			list_of_possible_words.remove(word)
+			list_of_possible_words.remove(word) # remove that possible words from our list so we don't pick it again
 			if self.can_replace(current_word, word) and word != self.word: # if the new word is a valid replacement and it's not equal to the previous word:
 				self.word_dictionary[word_length] = list_of_possible_words # remove invalid replacements
 				if Game.debug:
@@ -212,32 +219,34 @@ class Game:
 		"""
 		if Game.debug:
 			print("in can_replace| comparing {} to {}".format(word, spaced_word))
-		word_to_replace = self.add_spaces_to_word(word)
-		found_valid_letter = False
+		word_to_replace = self.add_spaces_to_word(word) # add spaces to the regular word for easier comparison
+		found_valid_letter = False # True when we find a letter that can be replaced
 
 		for index, letter in enumerate(spaced_word):
-			if letter != ' ':
+			if letter != ' ': # we don't care about spaces
+				# if the current letter has already been guessed and it's not in the spaced_word (which has already been partially revealed to the user):
 				if word_to_replace[index] in self.letters_guessed and word_to_replace[index] not in spaced_word:
 					if Game.debug:
 						print("The letter '{}' was already guessed before!".format(word_to_replace[index]))
-					return False
+					return False # this word isn't a valid replacement
+				# if the letters match up or are equal to underscores, keep searching through the word because we might have a match
 				if letter == word_to_replace[index] or letter == '_':
 					if Game.debug:
 						print("The letter '{}' matched!".format(letter))
-					found_valid_letter = True
+					found_valid_letter = True # the current letter is a valid one
 					continue
 				else:
 					if Game.debug:
 						print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
-					return False
-		if found_valid_letter:
+					return False # otherwise, stop looking in this word because it can't be a match
+		if found_valid_letter: # return True if this word is a valid match and can replace the current word 'evily'
 			if Game.debug:
 				print("The word '{}' did match '{}'".format(word_to_replace, spaced_word))
 			return True
 		else:
 			if Game.debug:
 				print("The word '{}' DID NOT match '{}'".format(word_to_replace, spaced_word))
-
+			return False
 
 	def find_word(self):
 		"""
@@ -256,9 +265,9 @@ class Game:
 
 		word = a string containing a single word
 		"""
-		word_with_spaces = ""
-		for char in word:
-			word_with_spaces = word_with_spaces + char + " "
+		word_with_spaces = "" # start out with a blank word
+		for char in word: # for each character in the word:
+			word_with_spaces = word_with_spaces + char + " " # add spaces!
 		word_with_spaces = word_with_spaces[:-1] # remove trailing space
 		return word_with_spaces
 
@@ -269,8 +278,8 @@ class Game:
 
 		word = a string containing a single word
 		"""
-		blank_word = ""
-		for i in range(0, len(word)):
+		blank_word = "" # start out with a blank word
+		for i in range(0, len(word)): # add (length of the word)-underscores to the blank word
 			blank_word = blank_word + "_"
 		return blank_word
 
@@ -322,7 +331,7 @@ class Game:
 		max_guesses = the limit to how many guesses the user can have (e.g. 6)
 		wrong_guesses = the number of wrong guesses the user already has (e.g. 3)
 		"""
-		return max_guesses - wrong_guesses
+		return max_guesses - wrong_guesses # guesses remaining = guesses allowed minus guesses used
 
 	def string_is_single_letter(self, str):
 		"""
@@ -332,8 +341,7 @@ class Game:
 		str = a string of any format
 		"""
 		alphabet = string.ascii_lowercase # a string containing each lowercase letter of the alphabet
-
-		return len(str) == 1 and str in alphabet
+		return len(str) == 1 and str in alphabet # the input has to be a single alphabetical character
 
 	def message(self, text):
 		"""
@@ -342,29 +350,33 @@ class Game:
 
 		text = the text to communicate to the user
 		"""
-		if self.twitter_mode:
+		if self.twitter_mode: # if we are communicating over Twitter:
 			print("Tweeting @{}...    ".format(self.user_player.get_handle()), end="")
-			try:
-				if self.last_user_tweet_id != -1:
+			try: # try to tweet at the user
+				if self.last_user_tweet_id != -1: # reply to the user's last tweet if it exists
 					self.twitter_connection.tweet_at_user(text, reply_to_status_id=self.last_user_tweet_id)
-				else:
+				else: # otherwise, send the user a new tweet conversation
 					self.twitter_connection.tweet_at_user(text)
-			except tweepy.error.TweepError as e:
+			# if we get an error, print it to the console and end the game
+			# error messages are very finicky, which is why there are not current plans to allow the user to try and fix them
+			except tweepy.error.TweepError as e: 
 				print("Twitter connection returned error: {}".format(e.__dict__))
 				self.end_game()
-		else:
+		else: # otherwise, if we're using the terminal, just print the message text via the console
 			print(text + "\n")
 
 	def get_user_input(self):
-		if self.twitter_mode:
-			try:
+		"""
+		Requests new user replies from Twitter if self.twitter_mode is True, otherwise 
+		requests new user input from the console.
+		"""
+		if self.twitter_mode: # if we are in Twitter mode:
+			try: # try to get a user response from Twitter
 				return self.twitter_connection.get_user_response()
+			# if we get an error, exit the game because tweepy/Twitter API errors are finicky
 			except tweepy.error.TweepError as e:
 				print("Twitter connection returned error: {}".format(e.__dict__))
 				self.end_game()
-		else:
+		else: # otherwise, if we're using the terminal, just ask for input via the console
 			return input("Guess a letter:\n").lower()
-
-
-
 
