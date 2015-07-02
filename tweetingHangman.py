@@ -12,6 +12,7 @@ from game import Game
 from user import User
 from twitterConnection import TwitterConnection
 from tkinter import *
+import tkinter.messagebox
 
 
 class Application(Frame):
@@ -20,6 +21,8 @@ class Application(Frame):
     the stopping and starting of the game. Inherits from the Tkinter 
     Frame object.
     """
+
+    DEBUG = False
 
     def __init__(self, master=None):
         """
@@ -110,15 +113,20 @@ class Application(Frame):
         Grabs the user's input from the GUI and starts playing the game.
         """
         handle = self.username_field.get() # grab the user's Twitter handle from the GUI
-        print("Playing against @{}".format(handle))
         playing_with_twitter = self.using_twitter.get() # find out whether or not we're playing with Twitter based on user input
-        print("Playing with Twitter? {}".format(bool(playing_with_twitter)))
         playing_evil_mode = self.evil_mode.get() # find out whether or not we're playing in evil mode based on user input
-        print("Playing evil mode? {}".format(bool(playing_evil_mode)))
+
+        if len(handle) == 0 and playing_with_twitter: # if we're playing with Twitter, the user must enter a valid username
+            tkinter.messagebox.showerror("Error", "Twitter handle can't be blank when playing in Twitter mode.") # show an error popup
+            return # return back to the GUI if the user doesn't enter a username
+
+        if Application.DEBUG: # print to the console only when debugging
+            print("Playing against @{}".format(handle))
+            print("Playing with Twitter? {}".format(bool(playing_with_twitter)))
+            print("Playing evil mode? {}".format(bool(playing_evil_mode)))
 
         player = User(handle) # create a new User to play the game
         twitter_connection = TwitterConnection(player, twitter_mode=playing_with_twitter) # initialize a new Twitter connection
-
         self.game = Game("computer", player, twitter_connection, twitter_mode=playing_with_twitter) # create a new game instance
         self.game.play(evil_mode=playing_evil_mode) # start the game!
 
