@@ -3,4 +3,3 @@ TODO:
 General:
 - add comments
 - update readme
-- fix console mode not printing everything

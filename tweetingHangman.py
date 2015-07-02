@@ -1,9 +1,18 @@
+"""
+Author: Dalton Boll
+
+USAGE: Run 'python3 tweetingHangman.py' from this project's directory. Interact with the GUI to play!
+
+This file is the 'control' of the game, where a new Game instance is initialized and Users are set.
+The GUI is also produced in this file.
+
+"""
+
 from game import Game
 from user import User
 from twitterConnection import TwitterConnection
 from tkinter import *
 
-# This file is the 'control' of the game, where a new Game instance is initialized and Users are set.
 
 class Application(Frame):
 
