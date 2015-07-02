@@ -57,22 +57,22 @@ of the Hangman game, and excludes Twitter completely from the game.
 USAGE:
 
 	- 0.1 Make sure you have a valid set of Twitter developer API access keys located in the file 'keys'. This 
-	    game will work with any account that has developer access, not just @TweetingHangman. For security 
-	    reasons, @TweetingHangman's developer keys are not publicly included on GitHub. Your keys should be 
-	    kept in the file 'keys' in the following format:
+	      game will work with any account that has developer access, not just @TweetingHangman. For security 
+	      reasons, @TweetingHangman's developer keys are not publicly included on GitHub. Your keys should be 
+	      kept in the file 'keys' in the following format:
 
-	    consumer_key = [INSERT YOUR CONSUMER KEY WITHOUT BRACKETS]
-	    consumer_secret = [INSERT YOUR CONSUMER SECRET WITHOUT BRACKETS]
-	    access_token = [INSERT YOUR ACCESS TOKEN WITHOUT BRACKETS]
-	    access_token_secret = [INSERT YOUR ACCESS TOKEN SECRET WITHOUT BRACKETS]
+	      consumer_key = [INSERT YOUR CONSUMER KEY WITHOUT BRACKETS]
+	      consumer_secret = [INSERT YOUR CONSUMER SECRET WITHOUT BRACKETS]
+	      access_token = [INSERT YOUR ACCESS TOKEN WITHOUT BRACKETS]
+	      access_token_secret = [INSERT YOUR ACCESS TOKEN SECRET WITHOUT BRACKETS]
 
 	- 0.2 Make sure you have created a Twitter account if you'd like to play this game over Twitter (playing 
-	    over the terminal without a Twitter account is also an option). 
+	      over the terminal without a Twitter account is also an option). 
 
 	- 1. Start the game in the terminal by running 'python3 tweetingHangman.py' from the root project directory.
 
 	- 2. A user interface will pop up. Enter in your Twitter username (without the '@') if you want to play over 
-	   Twitter. If you want to play over the terminal, you can leave the username field blank. 
+	     Twitter. If you want to play over the terminal, you can leave the username field blank. 
 
 	- 3. Decide if you want to play over Twitter (3.1) or via the terminal (3.2).
 
