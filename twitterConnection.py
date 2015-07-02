@@ -1,9 +1,16 @@
-import tweepy
-import time
-import random
-import string
-import sys
-from user import User
+"""
+Author: Dalton Boll
+GitHub: https://github.com/daltonboll/tweeting-hangman
+
+USAGE: Run 'python3 tweetingHangman.py' from this project's directory. Interact with the GUI to play!
+"""
+
+import tweepy # for connecting to the Twitter API
+import time # for polling the Twitter API in intervals
+import random # for generating random integers
+import string # for grabbing all legal alphabetical characters
+import sys # for exiting the program
+from user import User # for access to the User that we are tweeting to
 
 class TwitterConnection:
 	KEYS_FILE = "keys" # the name of the file where the Twitter authorization keys are stored

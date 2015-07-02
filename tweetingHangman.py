@@ -1,5 +1,6 @@
 """
 Author: Dalton Boll
+GitHub: https://github.com/daltonboll/tweeting-hangman
 
 USAGE: Run 'python3 tweetingHangman.py' from this project's directory. Interact with the GUI to play!
 
