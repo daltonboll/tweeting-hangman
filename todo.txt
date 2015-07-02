@@ -3,3 +3,4 @@ TODO:
 General:
 - add comments
 - update readme
+- twitter handle can't be blank
