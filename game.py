@@ -289,7 +289,6 @@ class Game:
 
 		for index, char in enumerate(word): # keep track of each index and character in the word
 			if char == character: # if we found the character in the word:
-				# TODO: try for evil hangman
 				if Game.debug:
 					print("In replace_letters| character = {}, blank_word = {}, index = {}\n".format(character, blank_word, index))
 				blank_word = self.replace_char_at_index(character, blank_word, index) # put the character into the blank_word at the index it was found
@@ -355,7 +354,7 @@ class Game:
 				print("Twitter connection returned error: {}".format(e.__dict__))
 				self.end_game()
 		else:
-			print(text)
+			print(text + "\n")
 
 	def get_user_input(self):
 		if self.twitter_mode:
