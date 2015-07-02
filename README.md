@@ -56,59 +56,59 @@ of the Hangman game, and excludes Twitter completely from the game.
 ------------------------------------------------------------------------------------------------------------------
 USAGE:
 
-- 0.1 Make sure you have a valid set of Twitter developer API access keys located in the file 'keys'. This 
-    game will work with any account that has developer access, not just @TweetingHangman. For security 
-    reasons, @TweetingHangman's developer keys are not publicly included on GitHub. Your keys should be 
-    kept in the file 'keys' in the following format:
+	- 0.1 Make sure you have a valid set of Twitter developer API access keys located in the file 'keys'. This 
+	    game will work with any account that has developer access, not just @TweetingHangman. For security 
+	    reasons, @TweetingHangman's developer keys are not publicly included on GitHub. Your keys should be 
+	    kept in the file 'keys' in the following format:
 
-    consumer_key = [INSERT YOUR CONSUMER KEY WITHOUT BRACKETS]
-    consumer_secret = [INSERT YOUR CONSUMER SECRET WITHOUT BRACKETS]
-    access_token = [INSERT YOUR ACCESS TOKEN WITHOUT BRACKETS]
-    access_token_secret = [INSERT YOUR ACCESS TOKEN SECRET WITHOUT BRACKETS]
+	    consumer_key = [INSERT YOUR CONSUMER KEY WITHOUT BRACKETS]
+	    consumer_secret = [INSERT YOUR CONSUMER SECRET WITHOUT BRACKETS]
+	    access_token = [INSERT YOUR ACCESS TOKEN WITHOUT BRACKETS]
+	    access_token_secret = [INSERT YOUR ACCESS TOKEN SECRET WITHOUT BRACKETS]
 
-- 0.2 Make sure you have created a Twitter account if you'd like to play this game over Twitter (playing 
-    over the terminal without a Twitter account is also an option). 
+	- 0.2 Make sure you have created a Twitter account if you'd like to play this game over Twitter (playing 
+	    over the terminal without a Twitter account is also an option). 
 
-- 1. Start the game in the terminal by running 'python3 tweetingHangman.py' from the root project directory.
+	- 1. Start the game in the terminal by running 'python3 tweetingHangman.py' from the root project directory.
 
-- 2. A user interface will pop up. Enter in your Twitter username (without the '@') if you want to play over 
-   Twitter. If you want to play over the terminal, you can leave the username field blank. 
+	- 2. A user interface will pop up. Enter in your Twitter username (without the '@') if you want to play over 
+	   Twitter. If you want to play over the terminal, you can leave the username field blank. 
 
-- 3. Decide if you want to play over Twitter (3.1) or via the terminal (3.2).
+	- 3. Decide if you want to play over Twitter (3.1) or via the terminal (3.2).
 
-	- 3.1. Select 'Play over Twitter' to play Hangman over Twitter.
-		- 3.1.1. Select 'Normal Hangman Mode' to play the classic version of Hangman, or 'Evil Hangman Mode' 
-		         to play the 'evil' version of Hangman.
-		- 3.1.2. Navigate to https://twitter.com/i/notifications [log into your Twitter account if you aren't
-		         already logged in]
-        - 3.1.3. Press the 'START' button to begin playing the game.
-        - 3.1.4. Go back to https://twitter.com/i/notifications and refresh the page until you see a tweet from 
-                 @TweetingHangman. Refreshing is necessary because the Twitter interface is sometimes slow at 
-                 dynamically updating automatically.
-        - 3.1.5. Click the reply button next to @TweetingHangman's tweet to start guessing! Please only use 
-                 single alphabetical characters, and don't hit the enter key on your keyboard. Just hit the 
-                 "Tweet" button once you've typed in your letter.
-        - 3.1.6. Continue refreshing the notifications page and replying to @TweetingHangman's tweets until 
-                 the game is over. Please don't spend too much time in between replies - the game must 
-                 continuously poll the Twitter API to see if you have sent a reply yet, and too much polling 
-                 will lock the game out of Twitter for 15 minutes.
-        - 3.1.7. Reply to @TweetingHangman with 'quit' (without quotes) at any time to quit the game. Note 
-                 that when playing over Twitter, clicking on the 'QUIT' button in the program interface 
-                 will cause the interface to freeze. This happens because of the way the Tkinter - which 
-                 powers the user interface - reacts to polling Twitter with time.sleep(). It's best to 
-                 tweet to quit or right click on the program and close it that way.
+		- 3.1. Select 'Play over Twitter' to play Hangman over Twitter.
+			- 3.1.1. Select 'Normal Hangman Mode' to play the classic version of Hangman, or 'Evil Hangman Mode' 
+			         to play the 'evil' version of Hangman.
+			- 3.1.2. Navigate to https://twitter.com/i/notifications [log into your Twitter account if you aren't
+			         already logged in]
+	        - 3.1.3. Press the 'START' button to begin playing the game.
+	        - 3.1.4. Go back to https://twitter.com/i/notifications and refresh the page until you see a tweet from 
+	                 @TweetingHangman. Refreshing is necessary because the Twitter interface is sometimes slow at 
+	                 dynamically updating automatically.
+	        - 3.1.5. Click the reply button next to @TweetingHangman's tweet to start guessing! Please only use 
+	                 single alphabetical characters, and don't hit the enter key on your keyboard. Just hit the 
+	                 "Tweet" button once you've typed in your letter.
+	        - 3.1.6. Continue refreshing the notifications page and replying to @TweetingHangman's tweets until 
+	                 the game is over. Please don't spend too much time in between replies - the game must 
+	                 continuously poll the Twitter API to see if you have sent a reply yet, and too much polling 
+	                 will lock the game out of Twitter for 15 minutes.
+	        - 3.1.7. Reply to @TweetingHangman with 'quit' (without quotes) at any time to quit the game. Note 
+	                 that when playing over Twitter, clicking on the 'QUIT' button in the program interface 
+	                 will cause the interface to freeze. This happens because of the way the Tkinter - which 
+	                 powers the user interface - reacts to polling Twitter with time.sleep(). It's best to 
+	                 tweet to quit or right click on the program and close it that way.
 
-    - 3.2. Select 'Play over the terminal' to play Hangman over the terminal.
-		- 3.2.1. Select 'Normal Hangman Mode' to play the classic version of Hangman, or 'Evil Hangman Mode' 
-		         to play the 'evil' version of Hangman.
-        - 3.2.2. Press the 'START' button to begin playing the game.
-        - 3.2.3. Switch from the program interface back to your terminal.
-        - 3.2.4. Type your response to the game through the terminal and hit enter on your keyboard to start 
-                 guessing! Please only use single alphabetical characters.
-        - 3.2.5. Continue responding to the game via the terminal until the game is over.
-        - 3.2.6. Type 'quit' (without quotes) into the terminal and hit enter at any time to quit the game. 
-                 You can also hit the 'QUIT' button in the program interface to quit the game since you 
-                 aren't playing over Twitter.
+	    - 3.2. Select 'Play over the terminal' to play Hangman over the terminal.
+			- 3.2.1. Select 'Normal Hangman Mode' to play the classic version of Hangman, or 'Evil Hangman Mode' 
+			         to play the 'evil' version of Hangman.
+	        - 3.2.2. Press the 'START' button to begin playing the game.
+	        - 3.2.3. Switch from the program interface back to your terminal.
+	        - 3.2.4. Type your response to the game through the terminal and hit enter on your keyboard to start 
+	                 guessing! Please only use single alphabetical characters.
+	        - 3.2.5. Continue responding to the game via the terminal until the game is over.
+	        - 3.2.6. Type 'quit' (without quotes) into the terminal and hit enter at any time to quit the game. 
+	                 You can also hit the 'QUIT' button in the program interface to quit the game since you 
+	                 aren't playing over Twitter.
 
 ------------------------------------------------------------------------------------------------------------------
 PROGRAM STRUCTURE:
